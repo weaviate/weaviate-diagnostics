@@ -47,8 +47,8 @@ func generateClient(url string, authEnabled bool) weaviate.Config {
 		return config
 	}
 
-	username := getInput("Username", ' ')
-	password := getInput("Password", '*')
+	username := getInput("Username:", ' ')
+	password := getInput("Password:", '*')
 
 	authConfig, err := weaviate.NewConfig(
 		"localhost:8080",
@@ -68,8 +68,9 @@ func getInput(label string, mask rune) string {
 	prompt := promptui.Prompt{}
 
 	templates := &promptui.PromptTemplates{
-		Prompt: "",
-		Valid:  "",
+		Prompt:  "- {{ . }}",
+		Valid:   "- {{ . }} ",
+		Success: "- {{ . }} ",
 	}
 
 	if mask == ' ' {
