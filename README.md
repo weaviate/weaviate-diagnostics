@@ -16,7 +16,7 @@ apk add golang # if inside weaviate container
 ## Usage
 
 ```sh
-go run main.go > weaviate-report.html
+go run main.go
 ```
 
 ### To do
