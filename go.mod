@@ -6,6 +6,7 @@ require (
 	github.com/elastic/go-sysinfo v1.9.0
 	github.com/fatih/color v1.10.0
 	github.com/google/uuid v1.3.0
+	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/cobra v1.0.0
 	github.com/weaviate/weaviate v1.17.2-0.20230118094121-abf30eac8656
 	github.com/weaviate/weaviate-go-client/v4 v4.6.1
@@ -15,6 +16,7 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/elastic/go-windows v1.0.0 // indirect
 	github.com/go-openapi/analysis v0.21.2 // indirect
 	github.com/go-openapi/errors v0.20.3 // indirect
