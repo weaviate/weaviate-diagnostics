@@ -83,7 +83,16 @@
 
 </div>
 
-
+<h2>Validation Issues</h2>
+<div class="col-6">
+    <ol> 
+    {{range  .Validations}}
+    <li>
+    {{ .Message }}
+    </li>
+    {{end}}
+    </ol>
+</div>
 
 <h2>Nodes</h2>
 <div id="nodes">

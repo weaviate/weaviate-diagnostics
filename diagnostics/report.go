@@ -31,6 +31,7 @@ type Report struct {
 	ProfileImg        string
 	HostJSON          string
 	PrometheusMetrics string
+	Validations       []Validation
 }
 
 var globalConfig Config
@@ -184,6 +185,8 @@ func retrieveSchema() {
 		panic(err)
 	}
 
+	fmt.Printf("%s Prometheus metrics retrieved\n", green("✓"))
+
 	hostData, err := sysinfo.Host()
 
 	if err != nil {
@@ -200,6 +203,8 @@ func retrieveSchema() {
 		panic(err)
 	}
 
+	fmt.Printf("%s Host data retrieved\n", green("✓"))
+
 	tmplt, err := template.ParseFiles("diagnostics/templates/report.html")
 	if err != nil {
 		panic(err)
@@ -208,6 +213,8 @@ func retrieveSchema() {
 	fmt.Printf("- Running CPU profile for 5 seconds..\n")
 	profile := getProf(5, globalConfig.ProfileUrl)
 	fmt.Printf("%s CPU profile retrieved\n", green("✓"))
+
+	validations := validateSchema(schema)
 
 	report := Report{
 		Meta:              meta,
@@ -221,13 +228,17 @@ func retrieveSchema() {
 		ProfileImg:        profile,
 		HostJSON:          string(hostJSON),
 		PrometheusMetrics: string(prometheusMetrics),
+		Validations:       validations,
 	}
 
 	outputFile, err := os.Create(globalConfig.OutputFile)
 	if err != nil {
 		panic(err)
 	}
-	tmplt.Execute(outputFile, report)
+	err = tmplt.Execute(outputFile, report)
+	if err != nil {
+		panic(err)
+	}
 
 	yellow := color.New(color.FgYellow).SprintFunc()
 	fmt.Printf("%s Report written to %s\n\n", green("✓"), yellow(globalConfig.OutputFile))
