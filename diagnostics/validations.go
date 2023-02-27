@@ -14,7 +14,10 @@ func validateBadVectorIndexConfig(schema *schema.Dump) []Validation {
 	var validations []Validation
 
 	for _, class := range schema.Classes {
-		vectorIndexConfig, _ := class.VectorIndexConfig.(map[string]interface{})
+		vectorIndexConfig, ok := class.VectorIndexConfig.(map[string]interface{})
+		if !ok {
+			continue
+		}
 		if vectorIndexConfig["efConstruction"].(float64) < 16 {
 			validations = append(validations, Validation{
 				Message: fmt.Sprintf("efConstruction=%.0f for class %s is too low", vectorIndexConfig["efConstruction"].(float64), class.Class),
@@ -23,6 +26,11 @@ func validateBadVectorIndexConfig(schema *schema.Dump) []Validation {
 		if vectorIndexConfig["maxConnections"].(float64) < 8 {
 			validations = append(validations, Validation{
 				Message: fmt.Sprintf("maxConnections=%.0f for class %s is too low", vectorIndexConfig["maxConnections"].(float64), class.Class),
+			})
+		}
+		if vectorIndexConfig["vectorCacheMaxObjects"].(float64) != 1e12 {
+			validations = append(validations, Validation{
+				Message: fmt.Sprintf("vectorCacheMaxObjects=%.0f for class %s is not 1e12", vectorIndexConfig["vectorCacheMaxObjects"].(float64), class.Class),
 			})
 		}
 	}
