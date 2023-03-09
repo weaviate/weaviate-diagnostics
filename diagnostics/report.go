@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"text/template"
 	"time"
@@ -13,7 +14,6 @@ import (
 	"github.com/elastic/go-sysinfo"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
-	"github.com/spf13/cobra"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/auth"
 	"github.com/weaviate/weaviate/entities/models"
@@ -36,14 +36,19 @@ type Report struct {
 
 var globalConfig Config
 
-func generateClient(url string, authEnabled bool) weaviate.Config {
+func generateClient(clientUrl string, authEnabled bool) weaviate.Config {
 
 	var config weaviate.Config
 
+	parsedURL, err := url.Parse(clientUrl)
+	if err != nil {
+		panic(err)
+	}
+
 	if !authEnabled {
 		config = weaviate.Config{
-			Scheme: "http",
-			Host:   "localhost:8080",
+			Scheme: parsedURL.Scheme,
+			Host:   parsedURL.Host,
 		}
 		return config
 	}
@@ -52,8 +57,8 @@ func generateClient(url string, authEnabled bool) weaviate.Config {
 	password := getInput("Password:", '*')
 
 	authConfig, err := weaviate.NewConfig(
-		"localhost:8080",
-		"http",
+		parsedURL.Host,
+		parsedURL.Scheme,
 		auth.ResourceOwnerPasswordFlow{
 			Username: username,
 			Password: password,
@@ -94,7 +99,7 @@ func getInput(label string, mask rune) string {
 	return input
 }
 
-func retrieveSchema() {
+func GenerateReport() {
 
 	cyan := color.New(color.FgCyan).SprintFunc()
 	green := color.New(color.FgGreen).SprintFunc()
@@ -210,8 +215,8 @@ func retrieveSchema() {
 		panic(err)
 	}
 
-	fmt.Printf("- Running CPU profile for 5 seconds..\n")
-	profile := getProf(5, globalConfig.ProfileUrl)
+	fmt.Printf("- Generating CPU profile..\n")
+	profile := getProf(globalConfig.ProfileUrl)
 	fmt.Printf("%s CPU profile retrieved\n", green("✓"))
 
 	validations := validateSchema(schema)
@@ -243,38 +248,4 @@ func retrieveSchema() {
 	yellow := color.New(color.FgYellow).SprintFunc()
 	fmt.Printf("%s Report written to %s\n\n", green("✓"), yellow(globalConfig.OutputFile))
 
-}
-
-var rootCmd = &cobra.Command{
-	Use:   "weaviate-diagnostics",
-	Short: "Weaviate Diagnostics",
-	Long:  `A tool to help diagnose issues with Weaviate`,
-	Run: func(cmd *cobra.Command, args []string) {
-		retrieveSchema()
-	},
-}
-
-func initCommand() {
-	rootCmd.PersistentFlags().StringVarP(&globalConfig.OutputFile,
-		"output", "o", "weaviate-report.html", "File to write the report to")
-	// todo make these configurable
-	rootCmd.PersistentFlags().StringVarP(&globalConfig.Url,
-		"url", "u", "http://localhost:8080", "URL of the Weaviate instance")
-
-	rootCmd.PersistentFlags().StringVarP(&globalConfig.MetricsUrl,
-		"metricsUrl", "m", "http://localhost:2112/metrics", "full URL plus path of the Weaviate metrics endpoint")
-
-	rootCmd.PersistentFlags().StringVarP(&globalConfig.ProfileUrl,
-		"profileUrl", "p", "http://localhost:6060", "full URL plus path of the Weaviate metrics endpoint")
-
-	rootCmd.PersistentFlags().BoolVarP(&globalConfig.Auth,
-		"auth", "a", false, "Enable authentication")
-}
-
-func Execute() {
-	initCommand()
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 }

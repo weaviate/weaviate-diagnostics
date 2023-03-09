@@ -5,18 +5,32 @@ running in customer environments.
 
 ## Dependencies
 
-Go needs to be installed for CPU profile. Ideally this tool is run from
-the Weaviate instance 
+Optional recommended depdency is [graphviz](https://graphviz.org/) for the cpu profiling graph.
 
 ```sh
-brew install golang # if on mac
-apk add golang # if inside weaviate container
+brew install graphviz # if on mac
+apk add graphviz # if inside weaviate container
 ```
 
 ## Usage
 
 ```sh
-go run main.go
+./weaviate-diagnostics -h
+A tool to help diagnose issues with Weaviate
+
+Usage:
+  weaviate-diagnostics [flags]
+  weaviate-diagnostics [command]
+
+Available Commands:
+  diagnostics Run Weaviate Diagnostics
+  help        Help about any command
+  profile     Generate a CPU profile
+
+Flags:
+  -h, --help   help for weaviate-diagnostics
+
+Use "weaviate-diagnostics [command] --help" for more information about a command.
 ```
 
 ### To do
@@ -28,7 +42,7 @@ go run main.go
 - [ ] Default to report-TIMESTAMP.html for file name
 - [ ] Use one CDN for js / css assets
 - [ ] Parse prometheus metrics in Golang
-- [ ] Create list of warning misconfigurations
+- [x] Create list of warning misconfigurations
 - [ ] Create top level metrics (total memory, total nodes, etc)
 - [ ] Memory consumption visualisation
-- [ ] See if we can use pprof package instead of `go tool pprof` (remove go dependency)
+- [x] See if we can use pprof package instead of `go tool pprof` (remove go dependency)

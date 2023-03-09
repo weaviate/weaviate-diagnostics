@@ -1,9 +1,10 @@
 package diagnostics
 
 type Config struct {
-	Url        string
-	MetricsUrl string
-	ProfileUrl string
-	Auth       bool
-	OutputFile string
+	Url               string
+	MetricsUrl        string
+	ProfileUrl        string
+	ProfileOutputFile string
+	Auth              bool
+	OutputFile        string
 }

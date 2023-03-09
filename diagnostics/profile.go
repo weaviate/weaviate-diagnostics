@@ -5,23 +5,28 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 
 	"github.com/google/uuid"
 )
 
 // GetProf returns a base64 encoded png of a go cpu profile
-// it takes the number of seconds to profile and the url of the profile endpoint
-// (usually http://localhost:6060)
-func getProf(seconds int, profileUrl string) string {
+// To not requite golang installed on the machine we bundle pprof and call the
+// pprof driver directly.
+func getProf(profileUrl string) string {
 	u := uuid.New()
 	fileName := fmt.Sprintf("/tmp/profile-%s.png", u.String())
-	url := fmt.Sprintf("%s/debug/pprof/profile?seconds=%d", profileUrl, seconds)
 
-	cmd := exec.Command("go", "tool", "pprof", "-output", fileName, "-png", url)
+	current, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+
+	cmd := exec.Command(current, "profile", "-o", fileName, "-p", profileUrl)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
 		fmt.Println("Error running command:", err)
 		fmt.Println("Stderr:", stderr.String())
@@ -33,7 +38,11 @@ func getProf(seconds int, profileUrl string) string {
 		panic(err)
 	}
 
-	// todo remove file
+	// remove file
+	err = os.Remove(fileName)
+	if err != nil {
+		panic(err)
+	}
 
 	encoded := base64.StdEncoding.EncodeToString(data)
 
