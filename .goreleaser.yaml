@@ -9,6 +9,7 @@ builds:
       - darwin_arm64
       - linux_amd64
       - linux_arm64
+    buildmode: "c-archive"
 
 archives:
   - format: tar.gz
