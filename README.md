@@ -16,11 +16,11 @@ Diagnostics are collected for:
 
 ## Dependencies
 
-Optional recommended depddency is [graphviz](https://graphviz.org/) for the cpu profiling graph.
+Optional recommended dependency is [graphviz](https://graphviz.org/) for the cpu profiling graph.
 
 ```sh
 brew install graphviz # if on mac
-apk add graphviz # if inside weaviate container
+apk add graphviz ttf-freefont # if inside weaviate alphine container
 ```
 
 ## Usage
