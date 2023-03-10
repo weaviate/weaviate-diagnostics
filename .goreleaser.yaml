@@ -11,8 +11,6 @@ builds:
       - darwin_arm64
       - linux_amd64
       - linux_arm64
-    ldflags:
-      - -static
 
 archives:
   - format: tar.gz
