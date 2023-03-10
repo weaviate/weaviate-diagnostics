@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -42,7 +43,7 @@ func generateClient(clientUrl string, authEnabled bool) weaviate.Config {
 
 	parsedURL, err := url.Parse(clientUrl)
 	if err != nil {
-		panic(err)
+		log.Fatal("Cannot parse Weaviate url:", err)
 	}
 
 	if !authEnabled {
@@ -65,7 +66,7 @@ func generateClient(clientUrl string, authEnabled bool) weaviate.Config {
 		},
 		nil)
 	if err != nil {
-		panic(err)
+		log.Fatal("Cannot create authenticated Weaviate config:", err)
 	}
 	return *authConfig
 }
@@ -94,7 +95,7 @@ func getInput(label string, mask rune) string {
 
 	input, err := prompt.Run()
 	if err != nil {
-		panic(err)
+		log.Fatal("Cannot parse prompt:", err)
 	}
 	return input
 }
@@ -120,27 +121,26 @@ func GenerateReport() {
 	metaGetter := client.Misc().MetaGetter()
 	meta, err := metaGetter.Do(context.Background())
 	if err != nil {
-		fmt.Printf("%s Error occurred %v", red("✗"), err)
-		return
+		log.Fatal("Cannot retrieve Weaviate /v1/meta", err)
 	}
 
 	fmt.Printf("%s Meta retrieved\n", green("✓"))
 
 	metaJSON, err := json.Marshal(meta)
 	if err != nil {
-		panic(err)
+		log.Fatal("Cannot parse Weaviate /v1/meta:", err)
 	}
 
 	schema, err := client.Schema().Getter().Do(context.Background())
 	if err != nil {
-		panic(err)
+		log.Fatal("Cannot retrieve Weaviate /v1/schema:", err)
 	}
 
 	fmt.Printf("%s Schema retrieved\n", green("✓"))
 
 	modules, ok := meta.Modules.(map[string]interface{})
 	if !ok {
-		panic(err)
+		log.Fatal("Cannot parse Weaviate schema:", err)
 	}
 
 	moduleList := []string{}
@@ -150,18 +150,17 @@ func GenerateReport() {
 
 	modulesJSON, err := json.Marshal(meta.Modules)
 	if err != nil {
-		panic(err)
+		log.Fatal("Cannot parse Weaviate modules:", err)
 	}
 
 	schemaJSON, err := json.MarshalIndent(schema, "", "  ")
 	if err != nil {
-		panic(err)
+		log.Fatal("Cannot parse Weaviate schema:", err)
 	}
 
 	nodes, err := client.Cluster().NodesStatusGetter().Do(context.Background())
 	if err != nil {
-		fmt.Printf("%s Error occurred %v", red("✗"), err)
-		return
+		log.Fatal("Cannot retrieve Weaviate /v1/nodes:", err)
 	}
 
 	fmt.Printf("%s Nodes status retrieved\n", green("✓"))
@@ -171,26 +170,25 @@ func GenerateReport() {
 
 		parsed, err := json.Marshal(node)
 		if err != nil {
-			fmt.Printf("%s Error occurred %v", red("✗"), err)
-			return
+			log.Fatal("Cannot parse Weaviate node info:", err)
 		}
 
 		nodesJSON = append(nodesJSON, parsed...)
 
 	}
 
+	var prometheusMetrics []byte = []byte{}
 	resp, err := http.Get(globalConfig.MetricsUrl)
 	if err != nil {
-		panic(err)
+		fmt.Printf("%s Skipping prometheus metrics\n", red("x"))
+	} else {
+		prometheusMetrics, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal("Cannot parse Weaviate prometheus metrics:", err)
+		}
+		fmt.Printf("%s Prometheus metrics retrieved\n", green("✓"))
 	}
 	defer resp.Body.Close()
-
-	prometheusMetrics, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%s Prometheus metrics retrieved\n", green("✓"))
 
 	hostData, err := sysinfo.Host()
 
@@ -212,14 +210,14 @@ func GenerateReport() {
 
 	tmplt, err := template.ParseFiles("diagnostics/templates/report.html")
 	if err != nil {
-		panic(err)
+		log.Fatal("Cannot parse report template:", err)
 	}
 
 	fmt.Printf("- Generating CPU profile..\n")
 	profile := getProf(globalConfig.ProfileUrl)
 	fmt.Printf("%s CPU profile retrieved\n", green("✓"))
 
-	validations := validateSchema(schema)
+	validations := validate(schema)
 
 	report := Report{
 		Meta:              meta,
@@ -238,11 +236,11 @@ func GenerateReport() {
 
 	outputFile, err := os.Create(globalConfig.OutputFile)
 	if err != nil {
-		panic(err)
+		log.Fatal("Cannot create report file:", err)
 	}
 	err = tmplt.Execute(outputFile, report)
 	if err != nil {
-		panic(err)
+		log.Fatal("Cannot write report file:", err)
 	}
 
 	yellow := color.New(color.FgYellow).SprintFunc()
