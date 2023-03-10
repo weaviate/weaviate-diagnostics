@@ -180,7 +180,7 @@ func GenerateReport() {
 	var prometheusMetrics []byte = []byte{}
 	resp, err := http.Get(globalConfig.MetricsUrl)
 	if err != nil {
-		fmt.Printf("%s Skipping prometheus metrics\n", red("x"))
+		fmt.Printf("%s Skipping prometheus metrics: %s\n", red("x"), err)
 	} else {
 		prometheusMetrics, err = io.ReadAll(resp.Body)
 		// limit the amount of metrics to 100k bytes
@@ -192,16 +192,10 @@ func GenerateReport() {
 			log.Fatal("Cannot parse Weaviate prometheus metrics:", err)
 		}
 		fmt.Printf("%s Prometheus metrics retrieved\n", green("✓"))
+		defer resp.Body.Close()
 	}
-	defer resp.Body.Close()
 
 	hostInformation := getHostInfo()
-	if err != nil {
-		fmt.Printf("%s Skipping host info due to: %v\n", red("x"), err)
-	} else {
-		fmt.Printf("%s Host info retrieved\n", green("✓"))
-	}
-
 	fmt.Printf("%s Host data retrieved\n", green("✓"))
 
 	tmplt, err := template.ParseFiles("diagnostics/templates/report.html")
@@ -214,6 +208,7 @@ func GenerateReport() {
 	fmt.Printf("%s CPU profile retrieved\n", green("✓"))
 
 	validations := validate(schema)
+	fmt.Printf("%s Running validation checks\n", green("✓"))
 
 	report := Report{
 		Meta:              meta,
