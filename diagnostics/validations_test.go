@@ -59,7 +59,7 @@ func TestEnvironmentVariables(t *testing.T) {
 			Message: "<code>QUERY_MAXIMUM_RESULTS</code> is set high: 10001",
 		},
 		{
-			Message: "<code>GOGC</code> is set high: 200",
+			Message: "<code>GOGC</code> is set: 200",
 		},
 		{
 			Message: "<code>REINDEX_VECTOR_DIMENSIONS_AT_STARTUP</code> is set to true. This is likely not needed if running on a recent version of Weaviate.",

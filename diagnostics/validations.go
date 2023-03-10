@@ -41,9 +41,9 @@ func validateEnvironmentVariables() []Validation {
 			validations = append(validations, Validation{
 				Message: fmt.Sprintf("<code>GOGC</code> is not a number: %s", err),
 			})
-		} else if max_results > 100 {
+		} else if max_results != 100 {
 			validations = append(validations, Validation{
-				Message: fmt.Sprintf("<code>GOGC</code> is set high: %d", max_results),
+				Message: fmt.Sprintf("<code>GOGC</code> is set: %d", max_results),
 			})
 		}
 	}

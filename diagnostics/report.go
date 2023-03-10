@@ -184,8 +184,8 @@ func GenerateReport() {
 	} else {
 		prometheusMetrics, err = io.ReadAll(resp.Body)
 		// limit the amount of metrics to 100k bytes
-		if len(prometheusMetrics) > 100000 {
-			prometheusMetrics = prometheusMetrics[:100000]
+		if len(prometheusMetrics) > 500000 {
+			prometheusMetrics = prometheusMetrics[:500000]
 			prometheusMetrics = append(prometheusMetrics, []byte(".. truncated due to size")...)
 		}
 		if err != nil {
