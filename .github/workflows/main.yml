@@ -1,4 +1,4 @@
-name: Weaviate Diagnostics
+name: Build
 
 on: [push]
 

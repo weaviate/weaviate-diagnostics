@@ -1,0 +1,18 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+
+archives:
+  - format: tar.gz
+checksum:
+  name_template: 'checksums.txt'
+changelog:
+  sort: asc
