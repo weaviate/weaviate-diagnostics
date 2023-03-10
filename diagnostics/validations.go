@@ -26,11 +26,11 @@ func validateEnvironmentVariables() []Validation {
 		max_results, err := strconv.ParseInt(os.Getenv("QUERY_MAXIMUM_RESULTS"), 10, 64)
 		if err != nil {
 			validations = append(validations, Validation{
-				Message: fmt.Sprintf("QUERY_MAXIMUM_RESULTS is not a number: %s", err),
+				Message: fmt.Sprintf("<code>QUERY_MAXIMUM_RESULTS</code> is not a number: %s", err),
 			})
 		} else if max_results > 10000 {
 			validations = append(validations, Validation{
-				Message: fmt.Sprintf("QUERY_MAXIMUM_RESULTS is set high: %d", max_results),
+				Message: fmt.Sprintf("<code>QUERY_MAXIMUM_RESULTS</code> is set high: %d", max_results),
 			})
 		}
 	}
@@ -39,11 +39,11 @@ func validateEnvironmentVariables() []Validation {
 		max_results, err := strconv.ParseInt(os.Getenv("GOGC"), 10, 64)
 		if err != nil {
 			validations = append(validations, Validation{
-				Message: fmt.Sprintf("GOGC is not a number: %s", err),
+				Message: fmt.Sprintf("<code>GOGC</code> is not a number: %s", err),
 			})
 		} else if max_results > 100 {
 			validations = append(validations, Validation{
-				Message: fmt.Sprintf("GOGC is set high: %d", max_results),
+				Message: fmt.Sprintf("<code>GOGC</code> is set high: %d", max_results),
 			})
 		}
 	}

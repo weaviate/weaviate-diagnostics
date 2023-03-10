@@ -183,6 +183,11 @@ func GenerateReport() {
 		fmt.Printf("%s Skipping prometheus metrics\n", red("x"))
 	} else {
 		prometheusMetrics, err = io.ReadAll(resp.Body)
+		// limit the amount of metrics to 100k bytes
+		if len(prometheusMetrics) > 100000 {
+			prometheusMetrics = prometheusMetrics[:100000]
+			prometheusMetrics = append(prometheusMetrics, []byte(".. truncated due to size")...)
+		}
 		if err != nil {
 			log.Fatal("Cannot parse Weaviate prometheus metrics:", err)
 		}

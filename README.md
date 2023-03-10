@@ -35,14 +35,11 @@ Use "weaviate-diagnostics [command] --help" for more information about a command
 
 ### To do
 
-- [ ] All inputs are optional and fail gracefully
-- [ ] Command line parsing for weaviate url, report file name
-- [ ] Command line option for prometheus endpoint
-- [ ] Copy buttons to copy all code sections
-- [ ] Default to report-TIMESTAMP.html for file name
+- [x] Command line parsing for weaviate url, report file name
+- [x] Command line option for prometheus endpoint
+- [x] Copy buttons to copy all code sections
 - [ ] Use one CDN for js / css assets
-- [ ] Parse prometheus metrics in Golang
 - [x] Create list of warning misconfigurations
-- [ ] Create top level metrics (total memory, total nodes, etc)
+- [x] Create top level metrics (total memory, total nodes, etc)
 - [ ] Memory consumption visualisation
 - [x] See if we can use pprof package instead of `go tool pprof` (remove go dependency)
