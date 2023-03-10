@@ -93,10 +93,42 @@
         </div>
         <div class="row align-items-start spacer"> 
             <div class="col-3">
-            Node Count
+            Cluster Size
             </div>
         <div class="col-6">
             <b>{{ len .Nodes }}</b>
+            </div>
+        </div>
+        <div class="row align-items-start spacer"> 
+            <div class="col-3">
+            Host OS
+            </div>
+        <div class="col-6">
+            <b>{{ .HostInformation.OperatingSystem }}-{{ .HostInformation.Architecture }}</b>
+            </div>
+        </div>
+        <div class="row align-items-start spacer"> 
+            <div class="col-3">
+            Host Memory
+            </div>
+        <div class="col-6">
+            <b>{{ .HostInformation.MemorySizeGB }} GB</b>
+            </div>
+        </div>
+        <div class="row align-items-start spacer"> 
+            <div class="col-3">
+            Host CPU Cores
+            </div>
+        <div class="col-6">
+            <b>{{ .HostInformation.Cores }}</b>
+            </div>
+        </div>
+        <div class="row align-items-start spacer"> 
+            <div class="col-3">
+            Host Disk Usage
+            </div>
+        <div class="col-6">
+            <b>{{ .HostInformation.DiskUsage }}</b>
             </div>
         </div>
     </div>
@@ -161,20 +193,6 @@
     </div>
 </div>
 
-<div class="row">
-    <h2>OS Info</h2>
-    <div class="clipboard">
-        <button id="host-copy" type="button" class="btn btn-secondary btn-sm btn-clipboard">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
-            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
-            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
-            </svg>
-        </button>
-    </div>
-    <div id="host">
-    </div>
-</div>
-
 <h2>Prometheus Metrics</h2>
 
 <pre>
@@ -188,8 +206,6 @@ schemaObj = {{ .SchemaJSON }}
 nodeObj = {{ .NodesJSON }}
 
 modulesObj = {{ .ModulesJSON }}
-
-hostObj = {{ .HostJSON }}
 
 new Vue({
     template: '<json-tree :data="schema" :level="4"></json-tree>',
@@ -215,14 +231,6 @@ new Vue({
     }
 })
 
-new Vue({
-    template: '<json-tree :data="schema" :level="4"></json-tree>',
-    el: '#host',
-    data: {
-        schema: hostObj
-    }
-})
-
 document.getElementById("nodes-copy").addEventListener("click", function() {
     navigator.clipboard.writeText(JSON.stringify(nodeObj));
 }, true);
@@ -233,10 +241,6 @@ document.getElementById("schem-copy").addEventListener("click", function() {
 
 document.getElementById("modules-copy").addEventListener("click", function() {
     navigator.clipboard.writeText(JSON.stringify(modulesObj));
-}, true);
-
-document.getElementById("host-copy").addEventListener("click", function() {
-    navigator.clipboard.writeText(JSON.stringify(hostObj));
 }, true);
 
 </script>

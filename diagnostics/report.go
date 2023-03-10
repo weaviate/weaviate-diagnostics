@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -12,7 +12,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/elastic/go-sysinfo"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate"
@@ -30,7 +29,7 @@ type Report struct {
 	Modules           []string
 	ModulesJSON       string
 	ProfileImg        string
-	HostJSON          string
+	HostInformation   HostInfo
 	PrometheusMetrics string
 	Validations       []Validation
 }
@@ -105,6 +104,7 @@ func GenerateReport() {
 	cyan := color.New(color.FgCyan).SprintFunc()
 	green := color.New(color.FgGreen).SprintFunc()
 	red := color.New(color.FgRed).SprintFunc()
+	yellow := color.New(color.FgYellow).SprintFunc()
 
 	// Print a banner for Weaviate in ascii art
 	fmt.Println(`  _ _ _ 
@@ -182,7 +182,7 @@ func GenerateReport() {
 	if err != nil {
 		fmt.Printf("%s Skipping prometheus metrics\n", red("x"))
 	} else {
-		prometheusMetrics, err = ioutil.ReadAll(resp.Body)
+		prometheusMetrics, err = io.ReadAll(resp.Body)
 		if err != nil {
 			log.Fatal("Cannot parse Weaviate prometheus metrics:", err)
 		}
@@ -190,20 +190,11 @@ func GenerateReport() {
 	}
 	defer resp.Body.Close()
 
-	hostData, err := sysinfo.Host()
-
+	hostInformation := getHostInfo()
 	if err != nil {
-		panic(err)
-	}
-
-	memory, err := hostData.Memory()
-
-	if err != nil {
-		panic(err)
-	}
-	hostJSON, err := json.Marshal(memory)
-	if err != nil {
-		panic(err)
+		fmt.Printf("%s Skipping host info due to: %v\n", red("x"), err)
+	} else {
+		fmt.Printf("%s Host info retrieved\n", green("✓"))
 	}
 
 	fmt.Printf("%s Host data retrieved\n", green("✓"))
@@ -229,7 +220,7 @@ func GenerateReport() {
 		Modules:           moduleList,
 		ModulesJSON:       string(modulesJSON),
 		ProfileImg:        profile,
-		HostJSON:          string(hostJSON),
+		HostInformation:   hostInformation,
 		PrometheusMetrics: string(prometheusMetrics),
 		Validations:       validations,
 	}
@@ -242,8 +233,5 @@ func GenerateReport() {
 	if err != nil {
 		log.Fatal("Cannot write report file:", err)
 	}
-
-	yellow := color.New(color.FgYellow).SprintFunc()
 	fmt.Printf("%s Report written to %s\n\n", green("✓"), yellow(globalConfig.OutputFile))
-
 }
