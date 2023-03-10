@@ -2,6 +2,7 @@ package diagnostics
 
 import (
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -35,6 +36,9 @@ type Report struct {
 }
 
 var globalConfig Config
+
+//go:embed templates/report.html
+var templateFile []byte
 
 func generateClient(clientUrl string, authEnabled bool) weaviate.Config {
 
@@ -198,10 +202,7 @@ func GenerateReport() {
 	hostInformation := getHostInfo()
 	fmt.Printf("%s Host data retrieved\n", green("✓"))
 
-	tmplt, err := template.ParseFiles("diagnostics/templates/report.html")
-	if err != nil {
-		log.Fatal("Cannot parse report template:", err)
-	}
+	tmplt := template.Must(template.New("report").Parse(string(templateFile)))
 
 	fmt.Printf("- Generating CPU profile..\n")
 	profile := getProf(globalConfig.ProfileUrl)
