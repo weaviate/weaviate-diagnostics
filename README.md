@@ -4,7 +4,7 @@ The purpose of this tool is to collect diagnostics from Weaviate clusters and al
 against any common misconfigurations.
 
 The diagnostics are collected by making a series of requests to a Weaviate instance and
-then generating single file html report.
+then generating a self-contained html report.
 
 Diagnostics are collected for:
 
