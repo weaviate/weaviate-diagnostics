@@ -26,6 +26,7 @@ type Report struct {
 	Nodes             []*models.NodeStatus
 	NodesJSON         string
 	MetaJSON          string
+	TotalClasses      int
 	SchemaJSON        string
 	Modules           []string
 	ModulesJSON       string
@@ -172,7 +173,7 @@ func GenerateReport() {
 	nodesJSON := []byte{}
 	for _, node := range nodes.Nodes {
 
-		parsed, err := json.Marshal(node)
+		parsed, err := json.MarshalIndent(node, "", "  ")
 		if err != nil {
 			log.Fatal("Cannot parse Weaviate node info:", err)
 		}
@@ -217,6 +218,7 @@ func GenerateReport() {
 		Nodes:             nodes.Nodes,
 		NodesJSON:         string(nodesJSON),
 		MetaJSON:          string(metaJSON),
+		TotalClasses:      len(schema.Classes),
 		SchemaJSON:        string(schemaJSON),
 		Modules:           moduleList,
 		ModulesJSON:       string(modulesJSON),
