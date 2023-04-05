@@ -20,7 +20,7 @@ Optional recommended dependency is [graphviz](https://graphviz.org/) for the cpu
 
 ```sh
 brew install graphviz # if on mac
-apk add graphviz ttf-freefont # if inside weaviate alphine container
+apk add graphviz ttf-freefont # if inside weaviate alpine container
 ```
 
 ## Usage
