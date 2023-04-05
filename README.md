@@ -1,5 +1,7 @@
 # Weaviate Diagnostics 🩺
 
+** This diagnostics tool is still in beta, feedback appreciated at customer-success@weaviate.io. **
+
 The purpose of this tool is to collect diagnostics from Weaviate clusters and also warn
 against any common misconfigurations.
 
