@@ -59,14 +59,3 @@ Flags:
 
 Use "weaviate-diagnostics [command] --help" for more information about a command.
 ```
-
-### To do
-
-- [x] Command line parsing for weaviate url, report file name
-- [x] Command line option for prometheus endpoint
-- [x] Copy buttons to copy all code sections
-- [ ] Use one CDN for js / css assets
-- [x] Create list of warning misconfigurations
-- [x] Create top level metrics (total memory, total nodes, etc)
-- [ ] Memory consumption visualisation
-- [x] See if we can use pprof package instead of `go tool pprof` (remove go dependency)
