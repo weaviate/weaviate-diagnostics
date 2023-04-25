@@ -7,4 +7,6 @@ type Config struct {
 	ProfileOutputFile string
 	Auth              bool
 	OutputFile        string
+	User		  string
+	Pass              string
 }
