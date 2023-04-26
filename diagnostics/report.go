@@ -58,8 +58,15 @@ func generateClient(clientUrl string, authEnabled bool) weaviate.Config {
 		return config
 	}
 
-	username := getInput("Username:", ' ')
-	password := getInput("Password:", '*')
+	username := globalConfig.User
+	password := globalConfig.Pass
+
+	if username == "" {
+		username = getInput("Username:", ' ')
+	}
+	if password == "" {
+		password = getInput("Password:", '*')
+	}
 
 	authConfig, err := weaviate.NewConfig(
 		parsedURL.Host,

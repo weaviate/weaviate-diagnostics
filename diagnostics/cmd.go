@@ -52,6 +52,12 @@ func initCommand() {
 	diagnosticsCmd.PersistentFlags().BoolVarP(&globalConfig.Auth,
 		"auth", "a", false, "Enable authentication")
 
+	diagnosticsCmd.PersistentFlags().StringVarP(&globalConfig.User,
+		"user", "n", "", "Username for authentication (defaults to prompt)")
+
+	diagnosticsCmd.PersistentFlags().StringVarP(&globalConfig.Pass,
+		"pass", "w", "", "Password for authentication (defaults to prompt)")
+
 	profileCmd.PersistentFlags().StringVarP(&globalConfig.ProfileUrl,
 		"profileUrl", "p", "http://localhost:6060/debug/pprof/profile?seconds=5", "URL of the Weaviate pprof endpoint")
 
