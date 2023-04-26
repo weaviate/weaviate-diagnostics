@@ -53,7 +53,7 @@ func initCommand() {
 		"auth", "a", false, "Enable authentication")
 
 	diagnosticsCmd.PersistentFlags().StringVarP(&globalConfig.User,
-		"user", "n", "", "Username for authentication")
+		"user", "n", "", "Username for authentication (defaults to prompt)")
 
 	diagnosticsCmd.PersistentFlags().StringVarP(&globalConfig.Pass,
 		"pass", "w", "", "Password for authentication (defaults to prompt)")
