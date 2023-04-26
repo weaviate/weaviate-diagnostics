@@ -63,6 +63,8 @@ func generateClient(clientUrl string, authEnabled bool) weaviate.Config {
 
 	if username == "" {
 		username = getInput("Username:", ' ')
+	}
+	if password == "" {
 		password = getInput("Password:", '*')
 	}
 
