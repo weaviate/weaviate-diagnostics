@@ -33,10 +33,10 @@ Basic usage for local Weaviate instance:
 ./weaviate-diagnostics diagnostics -u "http://localhost:8080" -o weaviate-report.html
 ```
 
-Authenticated cluster with OpenID (will prompt to ask for credentials):
+WCS cluster authenticating using api key
 
 ```sh
-./weaviate-diagnostics diagnostics -u "https://cluster-name.weaviate.cloud" -o weaviate-report.html -a
+./weaviate-diagnostics diagnostics -a "$WEAVIATE_API_KEY" -u "https://cluster-name.weaviate.cloud" -o weaviate-report.html
 ```
 
 Run `-h` for more options:
