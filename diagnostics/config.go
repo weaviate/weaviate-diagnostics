@@ -5,8 +5,8 @@ type Config struct {
 	MetricsUrl        string
 	ProfileUrl        string
 	ProfileOutputFile string
-	Auth              bool
+	ApiKey            string
 	OutputFile        string
-	User		  string
+	User              string
 	Pass              string
 }

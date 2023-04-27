@@ -41,44 +41,59 @@ var globalConfig Config
 //go:embed templates/report.html
 var templateFile []byte
 
-func generateClient(clientUrl string, authEnabled bool) weaviate.Config {
+func generateClient(clientUrl string, authMethod string) weaviate.Client {
 
 	var config weaviate.Config
 
 	parsedURL, err := url.Parse(clientUrl)
+
 	if err != nil {
 		log.Fatal("Cannot parse Weaviate url:", err)
 	}
 
-	if !authEnabled {
+	if authMethod == "none" {
 		config = weaviate.Config{
 			Scheme: parsedURL.Scheme,
 			Host:   parsedURL.Host,
 		}
-		return config
 	}
 
-	username := globalConfig.User
-	password := globalConfig.Pass
-
-	if username == "" {
-		username = getInput("Username:", ' ')
-	}
-	if password == "" {
-		password = getInput("Password:", '*')
+	if authMethod == "apiKey" {
+		config = weaviate.Config{
+			Scheme:     parsedURL.Scheme,
+			Host:       parsedURL.Host,
+			AuthConfig: auth.ApiKey{Value: globalConfig.ApiKey},
+		}
 	}
 
-	authConfig, err := weaviate.NewConfig(
-		parsedURL.Host,
-		parsedURL.Scheme,
-		auth.ResourceOwnerPasswordFlow{
-			Username: username,
-			Password: password,
-		},
-		nil)
+	if authMethod == "oidc" {
+
+		username := globalConfig.User
+		password := globalConfig.Pass
+
+		if username == "" {
+			username = getInput("Username:", ' ')
+		}
+		if password == "" {
+			password = getInput("Password:", '*')
+		}
+
+		config = weaviate.Config{
+			Scheme: parsedURL.Scheme,
+			Host:   parsedURL.Host,
+			AuthConfig: auth.ResourceOwnerPasswordFlow{
+				Username: username,
+				Password: password,
+			},
+		}
+	}
+
+	authConfig, err := weaviate.NewClient(config)
+
 	if err != nil {
-		log.Fatal("Cannot create authenticated Weaviate config:", err)
+		log.Fatal("Cannot create Weaviate config:", err)
 	}
+
 	return *authConfig
 }
 
@@ -125,11 +140,19 @@ func GenerateReport() {
 `)
 
 	fmt.Printf("- Retrieving Weaviate schema from: %s\n", cyan(globalConfig.Url))
-	fmt.Printf("- Authentication: %s\n", cyan(globalConfig.Auth))
 
-	config := generateClient(globalConfig.Url, globalConfig.Auth)
+	authMethod := "none"
+	if globalConfig.User != "" {
+		authMethod = "oidc"
+	}
+	if globalConfig.ApiKey != "" {
+		authMethod = "apiKey"
+	}
 
-	client := weaviate.New(config)
+	fmt.Printf("- Authentication: %s\n", cyan(authMethod))
+
+	client := generateClient(globalConfig.Url, authMethod)
+
 	metaGetter := client.Misc().MetaGetter()
 	meta, err := metaGetter.Do(context.Background())
 	if err != nil {
