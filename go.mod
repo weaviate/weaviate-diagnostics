@@ -2,8 +2,6 @@ module github.com/weaviate/weaviate-diagnostics
 
 go 1.21
 
-toolchain go1.22.1
-
 require (
 	github.com/fatih/color v1.16.0
 	github.com/google/pprof v0.0.0-20240509144519-723abb6459b7
