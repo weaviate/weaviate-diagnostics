@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	pprof_wrapper "github.com/weaviate/weaviate-diagnostics/diagnostics/pprof"
+	"github.com/weaviate/weaviate-diagnostics/utilities"
 )
 
 var rootCmd = &cobra.Command{
@@ -66,6 +67,7 @@ func initCommand() {
 
 	rootCmd.AddCommand(diagnosticsCmd)
 	rootCmd.AddCommand(profileCmd)
+	rootCmd.AddCommand(utilities.NewCombineCommitLogCmd())
 }
 
 func Execute() {
