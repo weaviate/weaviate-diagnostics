@@ -1,6 +1,7 @@
 package utilities
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -71,6 +72,16 @@ var combineCommitLogCmd = &cobra.Command{
 		err = commitLogger.CombineAndCondenseLogs()
 		if err != nil {
 			log.WithError(err).Fatal("Failed to combine and condense logs")
+		}
+
+		err = commitLogger.Flush()
+		if err != nil {
+			log.WithError(err).Fatal("Failed to flush commit logger")
+		}
+
+		err = commitLogger.Shutdown(context.Background())
+		if err != nil {
+			log.WithError(err).Fatal("Failed to shutdown commit logger")
 		}
 
 		// Remove the selected files
