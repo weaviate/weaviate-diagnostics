@@ -26,7 +26,7 @@ var combineCommitLogCmd = &cobra.Command{
 		log.Info("Running commit log combiner")
 		basePath := filepath.Clean(args[0])
 		name := "main"
-		targetThreshold := 1024 * 1024 * 15000 // 15GiB
+		targetThreshold := 1024 * 1024 * 24000 // 24GiB
 		dontTouchLastFiles := 1
 		totalFileLimit := 100
 		commitLogPath := fmt.Sprintf("%s/%s.hnsw.commitlog.d", basePath, name)
