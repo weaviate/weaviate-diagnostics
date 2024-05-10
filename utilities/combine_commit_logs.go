@@ -44,14 +44,20 @@ var combineCommitLogCmd = &cobra.Command{
 			log.WithError(err).Fatal("Failed to create sentinel file")
 		}
 
-		log.Info("wait 60s in case something is still in progress")
-		time.Sleep(60 * time.Second)
+		log.Info("wait 120s in case something is still in progress")
+		time.Sleep(120 * time.Second)
 
 		workingName := "working"
 		workingPath := filepath.Join(basePath, fmt.Sprintf("%s.hnsw.commitlog.d", workingName))
+		backupPath := filepath.Join(basePath, fmt.Sprintf("main.hnsw.commitlog.d.%d.bak", time.Now().Unix()))
+
 		err = os.MkdirAll(workingPath, os.ModePerm)
 		if err != nil {
 			log.WithError(err).Fatal("Failed to create working folder")
+		}
+		err = os.MkdirAll(backupPath, os.ModePerm)
+		if err != nil {
+			log.WithError(err).Fatal("Failed to create backup folder")
 		}
 
 		selectedFiles, err := selectCommitLogs(commitLogPath, dontTouchLastFiles, totalFileLimit)
@@ -59,9 +65,16 @@ var combineCommitLogCmd = &cobra.Command{
 			log.WithError(err).Fatal("Failed to select commit logs")
 		}
 
+		log.Infof("start copying into working path: %s", workingPath)
 		err = copyCommitLogs(selectedFiles, commitLogPath, workingPath)
 		if err != nil {
-			log.WithError(err).Fatal("Failed to copy commit logs")
+			log.WithError(err).Fatal("Failed to copy commit logs into working dir")
+		}
+
+		log.Infof("start copying into backup path: %s", backupPath)
+		err = copyCommitLogs(selectedFiles, commitLogPath, backupPath)
+		if err != nil {
+			log.WithError(err).Fatal("Failed to copy commit logs into backup")
 		}
 
 		logger := log.New()
