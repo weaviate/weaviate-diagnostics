@@ -44,8 +44,8 @@ var combineCommitLogCmd = &cobra.Command{
 			log.WithError(err).Fatal("Failed to create sentinel file")
 		}
 
-		log.Info("wait 120s in case something is still in progress")
-		time.Sleep(120 * time.Second)
+		log.Info("wait 12s in case something is still in progress")
+		time.Sleep(12 * time.Second)
 
 		workingName := "working"
 		workingPath := filepath.Join(basePath, fmt.Sprintf("%s.hnsw.commitlog.d", workingName))
@@ -86,14 +86,39 @@ var combineCommitLogCmd = &cobra.Command{
 			log.WithError(err).Fatal("Failed to create commit logger")
 		}
 
+		i := 0
 		for {
-			ok, err := commitLogger.CombineAndCondenseLogs()
-			if err != nil {
-				log.WithError(err).Fatal("Failed to combine and condense logs")
+			var ok1 bool
+			var ok2 bool
+			var err error
+
+			ok := true
+			for ok {
+				ok, err = commitLogger.CombineLogs()
+				if ok {
+					ok1 = true
+				}
+				if err != nil {
+					log.WithError(err).Fatal("Failed to combine commit logs")
+				}
 			}
 
+			ok = true
+			for ok {
+				ok, err = commitLogger.CondenseOldLogs()
+				if ok {
+					ok2 = true
+				}
+				if err != nil {
+					log.WithError(err).Fatal("Failed to condense commit logs")
+				}
+			}
+
+			i++
+			ok = ok1 || ok2
 			if !ok {
-				log.Info("no more work left, exiting combine and condense loop")
+				// never entered either loop, we are done!
+				log.Infof("completing combine and condense loop after %d iterations", i)
 				break
 			}
 		}
