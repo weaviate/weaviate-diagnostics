@@ -69,9 +69,11 @@ var combineCommitLogCmd = &cobra.Command{
 			log.WithError(err).Fatal("Failed to create commit logger")
 		}
 
-		err = commitLogger.CombineAndCondenseLogs()
-		if err != nil {
-			log.WithError(err).Fatal("Failed to combine and condense logs")
+		for i := 0; i < len(selectedFiles); i++ {
+			err = commitLogger.CombineAndCondenseLogs()
+			if err != nil {
+				log.WithError(err).Fatal("Failed to combine and condense logs")
+			}
 		}
 
 		err = commitLogger.Flush()
