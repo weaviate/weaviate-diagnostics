@@ -44,8 +44,8 @@ var combineCommitLogCmd = &cobra.Command{
 			log.WithError(err).Fatal("Failed to create sentinel file")
 		}
 
-		log.Info("wait 12s in case something is still in progress")
-		time.Sleep(12 * time.Second)
+		log.Info("wait 120s in case something is still in progress")
+		time.Sleep(120 * time.Second)
 
 		workingName := "working"
 		workingPath := filepath.Join(basePath, fmt.Sprintf("%s.hnsw.commitlog.d", workingName))
