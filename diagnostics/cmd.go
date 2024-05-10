@@ -50,14 +50,14 @@ func initCommand() {
 	diagnosticsCmd.PersistentFlags().StringVarP(&globalConfig.ProfileUrl,
 		"profileUrl", "p", "http://localhost:6060/debug/pprof/profile?seconds=5", "URL of the Weaviate pprof endpoint")
 
-	diagnosticsCmd.PersistentFlags().BoolVarP(&globalConfig.Auth,
-		"auth", "a", false, "Enable authentication")
+	diagnosticsCmd.PersistentFlags().StringVarP(&globalConfig.ApiKey,
+		"apiKey", "a", "", "API key authentication")
 
 	diagnosticsCmd.PersistentFlags().StringVarP(&globalConfig.User,
-		"user", "n", "", "Username for authentication (defaults to prompt)")
+		"user", "n", "", "Username for OIDC authentication")
 
 	diagnosticsCmd.PersistentFlags().StringVarP(&globalConfig.Pass,
-		"pass", "w", "", "Password for authentication (defaults to prompt)")
+		"pass", "w", "", "Password for OIDC authentication (defaults to prompt)")
 
 	profileCmd.PersistentFlags().StringVarP(&globalConfig.ProfileUrl,
 		"profileUrl", "p", "http://localhost:6060/debug/pprof/profile?seconds=5", "URL of the Weaviate pprof endpoint")
