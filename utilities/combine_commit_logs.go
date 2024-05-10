@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/weaviate/weaviate/adapters/repos/db/vector/hnsw"
@@ -25,7 +26,9 @@ var combineCommitLogCmd = &cobra.Command{
 		log.Info("Running commit log combiner")
 		basePath := filepath.Clean(args[0])
 		name := "main"
-		targetThreshold := 1024 * 1024 * 5000 // 5GB
+		targetThreshold := 1024 * 1024 * 15000 // 15GiB
+		dontTouchLastFiles := 1
+		totalFileLimit := 100
 		commitLogPath := fmt.Sprintf("%s/%s.hnsw.commitlog.d", basePath, name)
 
 		log.WithField("path", basePath).Info("Path value")
@@ -41,7 +44,8 @@ var combineCommitLogCmd = &cobra.Command{
 			log.WithError(err).Fatal("Failed to create sentinel file")
 		}
 
-		// TODO do we need to wait here if commit log in in progress?
+		log.Info("wait 60s in case something is still in progress")
+		time.Sleep(60 * time.Second)
 
 		workingName := "working"
 		workingPath := filepath.Join(basePath, fmt.Sprintf("%s.hnsw.commitlog.d", workingName))
@@ -50,7 +54,7 @@ var combineCommitLogCmd = &cobra.Command{
 			log.WithError(err).Fatal("Failed to create working folder")
 		}
 
-		selectedFiles, err := selectCommitLogs(commitLogPath)
+		selectedFiles, err := selectCommitLogs(commitLogPath, dontTouchLastFiles, totalFileLimit)
 		if err != nil {
 			log.WithError(err).Fatal("Failed to select commit logs")
 		}
@@ -69,10 +73,15 @@ var combineCommitLogCmd = &cobra.Command{
 			log.WithError(err).Fatal("Failed to create commit logger")
 		}
 
-		for i := 0; i < len(selectedFiles); i++ {
-			err = commitLogger.CombineAndCondenseLogs()
+		for {
+			ok, err := commitLogger.CombineAndCondenseLogs()
 			if err != nil {
 				log.WithError(err).Fatal("Failed to combine and condense logs")
+			}
+
+			if !ok {
+				log.Info("no more work left, exiting combine and condense loop")
+				break
 			}
 		}
 
@@ -150,7 +159,6 @@ func validatePath(path string) error {
 }
 
 func copyCommitLogs(selectedFiles []string, basePath string, workingPath string) error {
-
 	// Copy the selected files to the new folder
 	for _, file := range selectedFiles {
 		srcPath := filepath.Join(basePath, file)
@@ -182,8 +190,7 @@ func copyCommitLogs(selectedFiles []string, basePath string, workingPath string)
 	return nil
 }
 
-func selectCommitLogs(path string) ([]string, error) {
-
+func selectCommitLogs(path string, dontTouchLastFiles int, totalLimit int) ([]string, error) {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory: %s", err)
@@ -202,15 +209,20 @@ func selectCommitLogs(path string) ([]string, error) {
 	// Sort the filtered files by name
 	sort.Strings(filteredFiles)
 
-	// Exclude the last 10 files or return an empty list if there are 10 or fewer files
-	if len(filteredFiles) <= 10 {
+	// Exclude the last dontTouchLastFiles files or return an empty list if there are 10 or fewer files
+	if len(filteredFiles) <= dontTouchLastFiles {
 		return []string{}, nil
 	}
-	filteredFiles = filteredFiles[:len(filteredFiles)-10]
+	filteredFiles = filteredFiles[:len(filteredFiles)-dontTouchLastFiles]
 
 	// for _, file := range filteredFiles {
 	// 	log.WithField("file", file).Info("Selected commit log")
 	// }
+
+	if len(filteredFiles) > totalLimit {
+		log.Infof("Found %d eligibile files, but limit is set to %d, ignoring remaining files", len(filteredFiles), totalLimit)
+		return filteredFiles[:totalLimit], nil
+	}
 
 	return filteredFiles, nil
 }
